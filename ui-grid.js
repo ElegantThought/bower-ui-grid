@@ -18495,7 +18495,7 @@ module.filter('px', function() {
             //probably need to change this to grab appropriately named sheet based on
             //current table being viewed in the app.
             sht = wb.Sheets[wb.SheetNames[0]];
-            var csvWb = spreadsht.utils.sheet_to_csv(sht);
+            var csvWb = spreadsht.utils.sheet_to_csv(sht, {ignoreBlankRows: true});
             return CSV.parse(csvWb);
         },
 
