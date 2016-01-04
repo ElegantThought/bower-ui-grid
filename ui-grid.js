@@ -16001,7 +16001,14 @@ module.filter('px', function() {
           
           csv += exportData.map(this.formatRowAsCsv(this, separator)).join('\n');
           
-          return csv;
+          function s2ab(s) {
+            var buf = new ArrayBuffer(s.length);
+            var view = new Uint8Array(buf);
+            for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+          }
+
+          return s2ab(csv);
         },
 
         /**
@@ -16044,7 +16051,7 @@ module.filter('px', function() {
             return '"' + field.value.replace(/"/g,'""') + '"';
           }
 
-          return JSON.stringify(field.value);        
+          return field.value;        
         },
 
 
