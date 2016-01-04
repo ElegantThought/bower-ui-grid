@@ -10916,6 +10916,9 @@ module.filter('px', function() {
           exporterAllAsCsv: 'Alle Daten als CSV exportieren',
           exporterVisibleAsCsv: 'sichtbare Daten als CSV exportieren',
           exporterSelectedAsCsv: 'markierte Daten als CSV exportieren',
+          exporterAllAsXlsx: 'Alle Daten als XLSX exportieren',
+          exporterVisibleAsXlsx: 'sichtbare Daten als XLSX exportieren',
+          exporterSelectedAsXlsx: 'markierte Daten als XLSX exportieren',
           exporterAllAsPdf: 'Alle Daten als PDF exportieren',
           exporterVisibleAsPdf: 'sichtbare Daten als PDF exportieren',
           exporterSelectedAsPdf: 'markierte Daten als CSV exportieren'
@@ -10987,6 +10990,9 @@ module.filter('px', function() {
           exporterAllAsCsv: 'Export all data as csv',
           exporterVisibleAsCsv: 'Export visible data as csv',
           exporterSelectedAsCsv: 'Export selected data as csv',
+          exporterAllAsXlsx: 'Export all data as xlsx',
+          exporterVisibleAsXlsx: 'Export visible data as xlsx',
+          exporterSelectedAsXlsx: 'Export selected data as xlsx',
           exporterAllAsPdf: 'Export all data as pdf',
           exporterVisibleAsPdf: 'Export visible data as pdf',
           exporterSelectedAsPdf: 'Export selected data as pdf'
@@ -11068,6 +11074,9 @@ module.filter('px', function() {
           exporterAllAsCsv: 'Exportar todo como csv',
           exporterVisibleAsCsv: 'Exportar vista como csv',
           exporterSelectedAsCsv: 'Exportar selección como csv',
+          exporterAllAsXlsx: 'Exportar todo como xlsx',
+          exporterVisibleAsXlsx: 'Exportar vista como xlsx',
+          exporterSelectedAsXlsx: 'Exportar selección como xlsx',
           exporterAllAsPdf: 'Exportar todo como pdf',
           exporterVisibleAsPdf: 'Exportar vista como pdf',
           exporterSelectedAsPdf: 'Exportar selección como pdf'
@@ -15192,6 +15201,21 @@ module.filter('px', function() {
                 },
                 /**
                  * @ngdoc function
+                 * @name xlsxExport
+                 * @methodOf  ui.grid.exporter.api:PublicApi
+                 * @description Exports rows from the grid in xlsx format, 
+                 * the data exported is selected based on the provided options
+                 * @param {string} rowTypes which rows to export, valid values are
+                 * uiGridExporterConstants.ALL, uiGridExporterConstants.VISIBLE,
+                 * uiGridExporterConstants.SELECTED
+                 * @param {string} colTypes which columns to export, valid values are
+                 * uiGridExporterConstants.ALL, uiGridExporterConstants.VISIBLE
+                 */
+                xlsxExport: function (rowTypes, colTypes) {
+                  service.xlsxExport(grid, rowTypes, colTypes);
+                },
+                /**
+                 * @ngdoc function
                  * @name pdfExport
                  * @methodOf  ui.grid.exporter.api:PublicApi
                  * @description Exports rows from the grid in pdf format, 
@@ -15292,6 +15316,15 @@ module.filter('px', function() {
            * <br/>Defaults to 'download.csv'
            */
           gridOptions.exporterCsvFilename = gridOptions.exporterCsvFilename ? gridOptions.exporterCsvFilename : 'download.csv';
+          /**
+           * @ngdoc object
+           * @name exporterXlsxFilename
+           * @propertyOf  ui.grid.exporter.api:GridOptions
+           * @description The default filename to use when saving the downloaded xlsx.  
+           * This will only work in some browsers.
+           * <br/>Defaults to 'download.xlsx'
+           */
+          gridOptions.exporterXlsxFilename = gridOptions.exporterXlsxFilename ? gridOptions.exporterXlsxFilename : 'download.xlsx';
           /**
            * @ngdoc object
            * @name exporterOlderExcelCompatibility
@@ -15448,6 +15481,14 @@ module.filter('px', function() {
 
           /**
            * @ngdoc object
+           * @name exporterMenuXlsx
+           * @propertyOf  ui.grid.exporter.api:GridOptions
+           * @description Add xlsx export menu items to the ui-grid grid menu, if it's present.  Defaults to true.
+           */
+          gridOptions.exporterMenuXlsx = gridOptions.exporterMenuXlsx !== undefined ? gridOptions.exporterMenuXlsx : true;
+
+          /**
+           * @ngdoc object
            * @name exporterMenuPdf
            * @propertyOf  ui.grid.exporter.api:GridOptions
            * @description Add pdf export menu items to the ui-grid grid menu, if it's present.  Defaults to true.
@@ -15580,6 +15621,16 @@ module.filter('px', function() {
               order: 200
             },
             {
+              title: i18nService.getSafeText('gridMenu.exporterAllAsXlsx'),
+              action: function ($event) {
+                this.grid.api.exporter.xlsxExport( uiGridExporterConstants.ALL, uiGridExporterConstants.ALL );
+              },
+              shown: function() {
+                return this.grid.options.exporterMenuXlsx && this.grid.options.exporterMenuAllData; 
+              },
+              order: 201
+            },
+            {
               title: i18nService.getSafeText('gridMenu.exporterVisibleAsCsv'),
               action: function ($event) {
                 this.grid.api.exporter.csvExport( uiGridExporterConstants.VISIBLE, uiGridExporterConstants.VISIBLE );
@@ -15587,7 +15638,17 @@ module.filter('px', function() {
               shown: function() {
                 return this.grid.options.exporterMenuCsv; 
               },
-              order: 201
+              order: 202
+            },
+            {
+              title: i18nService.getSafeText('gridMenu.exporterVisibleAsXlsx'),
+              action: function ($event) {
+                this.grid.api.exporter.xlsxExport( uiGridExporterConstants.VISIBLE, uiGridExporterConstants.VISIBLE );
+              },
+              shown: function() {
+                return this.grid.options.exporterMenuXlsx; 
+              },
+              order: 203
             },
             {
               title: i18nService.getSafeText('gridMenu.exporterSelectedAsCsv'),
@@ -15598,7 +15659,18 @@ module.filter('px', function() {
                 return this.grid.options.exporterMenuCsv &&
                        ( this.grid.api.selection && this.grid.api.selection.getSelectedRows().length > 0 ); 
               },
-              order: 202
+              order: 204
+            },
+            {
+              title: i18nService.getSafeText('gridMenu.exporterSelectedAsXlsx'),
+              action: function ($event) {
+                this.grid.api.exporter.xlsxExport( uiGridExporterConstants.SELECTED, uiGridExporterConstants.VISIBLE );
+              },
+              shown: function() {
+                return this.grid.options.exporterMenuXlsx &&
+                       ( this.grid.api.selection && this.grid.api.selection.getSelectedRows().length > 0 ); 
+              },
+              order: 205
             },
             {
               title: i18nService.getSafeText('gridMenu.exporterAllAsPdf'),
@@ -15608,7 +15680,7 @@ module.filter('px', function() {
               shown: function() {
                 return this.grid.options.exporterMenuPdf && this.grid.options.exporterMenuAllData; 
               },
-              order: 203
+              order: 206
             },
             {
               title: i18nService.getSafeText('gridMenu.exporterVisibleAsPdf'),
@@ -15618,7 +15690,7 @@ module.filter('px', function() {
               shown: function() {
                 return this.grid.options.exporterMenuPdf; 
               },
-              order: 204
+              order: 207
             },
             {
               title: i18nService.getSafeText('gridMenu.exporterSelectedAsPdf'),
@@ -15629,7 +15701,7 @@ module.filter('px', function() {
                 return this.grid.options.exporterMenuPdf &&
                        ( this.grid.api.selection && this.grid.api.selection.getSelectedRows().length > 0 ); 
               },
-              order: 205
+              order: 208
             }
           ]);
         },
@@ -15657,6 +15729,33 @@ module.filter('px', function() {
             var csvContent = self.formatAsCsv(exportColumnHeaders, exportData, grid.options.exporterCsvColumnSeparator);
             
             self.downloadFile (grid.options.exporterCsvFilename, csvContent, grid.options.exporterOlderExcelCompatibility);
+          });
+        },
+
+        /**
+         * @ngdoc function
+         * @name xlsxExport
+         * @methodOf  ui.grid.exporter.service:uiGridExporterService
+         * @description Exports rows from the grid in xlsx format, 
+         * the data exported is selected based on the provided options
+         * @param {Grid} grid the grid from which data should be exported
+         * @param {string} rowTypes which rows to export, valid values are
+         * uiGridExporterConstants.ALL, uiGridExporterConstants.VISIBLE,
+         * uiGridExporterConstants.SELECTED
+         * @param {string} colTypes which columns to export, valid values are
+         * uiGridExporterConstants.ALL, uiGridExporterConstants.VISIBLE,
+         * uiGridExporterConstants.SELECTED
+         */
+        xlsxExport: function (grid, rowTypes, colTypes) {
+          var self = this;
+          this.loadAllDataIfNeeded(grid, rowTypes, colTypes).then(function() {
+            var exportColumnHeaders = self.getColumnHeaders(grid, colTypes);
+            var exportData = self.getData(grid, rowTypes, colTypes);
+            var xlsxContent = self.formatAsXlsx(exportColumnHeaders, exportData, grid.options.exporterXlsxFilename);
+            
+            
+
+            self.downloadFile (grid.options.exporterXlsxFilename, xlsxContent, grid.options.exporterOlderExcelCompatibility);
           });
         },
 
@@ -15815,6 +15914,71 @@ module.filter('px', function() {
           return data;
         },
 
+        /**
+         * @ngdoc function
+         * @name formatAsXlsx
+         * @methodOf  ui.grid.exporter.service:uiGridExporterService
+         * @description Formats the column headers and data as a CSV, 
+         * and sends that data to the user
+         * @param {array} exportColumnHeaders an array of column headers, 
+         * where each header is an object with name, width and maybe alignment
+         * @param {array} exportData an array of rows, where each row is
+         * an array of column data
+         * @param {string} sheetName name of the worksheet
+         * @returns {ArrayBuffer} ArrayBuffer ready for download
+         *
+        **/
+        formatAsXlsx: function (exportColumnHeaders, exportData, sheetName) {
+          var XLSX = require('jsxlsx');
+          var bareHeaders = exportColumnHeaders.map(function(header){return { value: header.displayName };});
+          var ws = {};
+          var R = 0;
+          var C = 0;
+          var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
+          var workbook = {"SheetNames": [], "Sheets": {}};
+          var cell_ref, new_cell;
+          for(var C = 0; C<bareHeaders.length; C++) {
+              //Update range, cells outside of range will not be processed
+              if(range.s.r > R) range.s.r = R;
+              if(range.s.c > C) range.s.c = C;
+              if(range.e.r < R) range.e.r = R;
+              if(range.e.c < C) range.e.c = C;
+
+              cell_ref = XLSX.utils.encode_cell({c:C,r:R});
+              new_cell = {"v": bareHeaders[C].value, "t": 's'};
+              ws[cell_ref] = new_cell;
+          }
+          for(R++; R<=exportData.length; R++) {
+            for(var C = 0; C<exportData[R-1].length; C++) {
+              new_cell = {"v": " ", "t": 's'};
+              if(range.s.r > R) range.s.r = R;
+              if(range.s.c > C) range.s.c = C;
+              if(range.e.r < R) range.e.r = R;
+              if(range.e.c < C) range.e.c = C;
+              cell_ref = XLSX.utils.encode_cell({c:C,r:R});
+              if(exportData[R-1][C].value)
+                new_cell = {"v": exportData[R-1][C].value + '', "t": 's'};
+              else
+                new_cell = {"v": ' ', "t": 's'};
+              ws[cell_ref] = new_cell;
+            }
+          }
+          if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
+          workbook.SheetNames.push(sheetName);
+          workbook.Sheets[sheetName] = ws;
+
+
+          var wbout = XLSX.write(workbook, {bookType:'xlsx', bookSST: true, type: 'binary'});
+
+          function s2ab(s) {
+            var buf = new ArrayBuffer(s.length);
+            var view = new Uint8Array(buf);
+            for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+          }
+
+          return s2ab(wbout);
+        },
 
         /**
          * @ngdoc function
@@ -18219,7 +18383,7 @@ module.filter('px', function() {
          * @param {File} fileObject the file we want to import, as returned from the File
          * javascript object
          */
-        importThisFile: function ( grid, fileObject ) {
+         importThisFile: function ( grid, fileObject ) {
           if (!fileObject){
             gridUtil.logError( 'No file object provided to importThisFile, should be impossible, aborting');
             return;
@@ -18231,6 +18395,15 @@ module.filter('px', function() {
             case 'application/json':
               reader.onload = service.importJsonClosure( grid );
               break;
+            case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+            case 'application/vnd.ms-excel':
+                if(fileObject.name.split('.').pop().toLowerCase() === "csv") reader.onload = service.importCsvClosure( grid );
+                else {
+                  reader.onload = service.importXlsxClosure( grid )
+                  reader.readAsBinaryString( fileObject );
+                  return;
+                }
+                break;
             default:
               reader.onload = service.importCsvClosure( grid );
               break;
@@ -18270,6 +18443,60 @@ module.filter('px', function() {
             service.addObjects( grid, newObjects );
             
           };
+        },
+
+        /**
+         * @ngdoc function
+         * @name importXlsxClosure
+         * @methodOf ui.grid.importer.service:uiGridImporterService
+         * @description Creates a function that imports a xlsx file into the grid
+         * (allowing it to be used in the reader.onload event)
+         * @param {Grid} grid the grid that we want to import into
+         * @param {FileObject} importFile the file that we want to import, as
+         * a file object
+         */
+        importXlsxClosure: function( grid ) {
+            return function( importFile ){
+                var importArray = service.parseXlsx( importFile );
+                if ( !importArray || importArray.length < 1 ){
+                    service.alertError( grid, 'importer.invalidXlsx', 'File could not be processed, is it valid spreadsheet? Content was: ', importFile.target.result );
+                    return;
+                }
+
+                var newObjects = service.createCsvObjects( grid, importArray );
+                if ( !newObjects || newObjects.length === 0 ){
+                    service.alertError( grid, 'importer.noObjects', 'Objects were not able to be derived, content was: ', importFile.target.result );
+                    return;
+                }
+
+                service.addObjects( grid, newObjects );
+            };
+        },
+
+
+        /**
+         * @ngdoc function
+         * @name parseXlsx
+         * @methodOf ui.grid.importer.service:uiGridImporterService
+         * @description Parses a xlsx file into an array of arrays using parseCsv, with the first
+         * array being the headers, and the remaining arrays being the data.
+         * The logic for this comes from https://github.com/SheetJS/js-xlsx/xlsx.js,
+         * which is noted as being under the Apache license. 
+         * @param {FileObject} importFile the file that we want to import, as a
+         * file object
+         */
+        parseXlsx: function( importFile ) {
+            var xlsx = importFile.target.result;
+            var spreadsht = require('jsxlsx');
+           
+            var wb = spreadsht.read(xlsx, {type: 'binary'});
+            var sht;
+            //grabs first sheet in associative array, whatever that is
+            //probably need to change this to grab appropriately named sheet based on
+            //current table being viewed in the app.
+            sht = wb.Sheets[wb.SheetNames[0]];
+            var csvWb = spreadsht.utils.sheet_to_csv(sht);
+            return CSV.parse(csvWb);
         },
 
 
@@ -18367,9 +18594,12 @@ module.filter('px', function() {
          * @param {Array} importArray the data that we want to import, as an array
          */
         createCsvObjects: function( grid, importArray ){
+          Array.prototype.isNull = function (){
+            return this.join().replace(/,/g,'').length === 0;
+          };
           // pull off header row and turn into headers
           var headerMapping = grid.options.importerProcessHeaders( grid, importArray.shift() );
-          if ( !headerMapping || headerMapping.length === 0 ){
+          if ( !headerMapping || headerMapping.isNull() || headerMapping.length === 0 ){
             service.alertError( grid, 'importer.noHeaders', 'Column names could not be derived, content was: ', importArray );
             return [];
           }
