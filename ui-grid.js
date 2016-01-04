@@ -18404,19 +18404,15 @@ module.filter('px', function() {
               break;
             case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             case 'application/vnd.ms-excel':
-                if(fileObject.name.split('.').pop().toLowerCase() === "csv") reader.onload = service.importCsvClosure( grid );
-                else {
-                  reader.onload = service.importXlsxClosure( grid )
-                  reader.readAsBinaryString( fileObject );
-                  return;
-                }
-                break;
+              if(fileObject.name.split('.').pop().toLowerCase() === "csv") reader.onload = service.importCsvClosure( grid );
+              else reader.onload = service.importXlsxClosure( grid )
+              break;
             default:
               reader.onload = service.importCsvClosure( grid );
               break;
           }
           
-          reader.readAsText( fileObject );
+          reader.readAsBinaryString( fileObject );
         },
         
         
