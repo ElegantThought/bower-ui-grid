@@ -15158,8 +15158,8 @@ module.filter('px', function() {
    *
    *  @description Services for exporter feature
    */
-  module.service('uiGridExporterService', ['$q', 'uiGridExporterConstants', 'gridUtil', '$compile', '$interval', 'i18nService',
-    function ($q, uiGridExporterConstants, gridUtil, $compile, $interval, i18nService) {
+  module.service('uiGridExporterService', ['$q', 'Account', 'uiGridExporterConstants', 'gridUtil', '$compile', '$interval', 'i18nService',
+    function ($q, Account, uiGridExporterConstants, gridUtil, $compile, $interval, i18nService) {
 
       var service = {
 
@@ -15611,22 +15611,22 @@ module.filter('px', function() {
         addToMenu: function ( grid ) {
           grid.api.core.addToGridMenu( grid, [
             {
-              title: i18nService.getSafeText('gridMenu.exporterAllAsCsv'),
-              action: function ($event) {
-                this.grid.api.exporter.csvExport( uiGridExporterConstants.ALL, uiGridExporterConstants.ALL );
-              },
-              shown: function() {
-                return this.grid.options.exporterMenuCsv && this.grid.options.exporterMenuAllData; 
-              },
-              order: 200
-            },
-            {
               title: i18nService.getSafeText('gridMenu.exporterAllAsXlsx'),
               action: function ($event) {
                 this.grid.api.exporter.xlsxExport( uiGridExporterConstants.ALL, uiGridExporterConstants.ALL );
               },
               shown: function() {
                 return this.grid.options.exporterMenuXlsx && this.grid.options.exporterMenuAllData; 
+              },
+              order: 200
+            },
+            {
+              title: i18nService.getSafeText('gridMenu.exporterAllAsCsv'),
+              action: function ($event) {
+                this.grid.api.exporter.csvExport( uiGridExporterConstants.ALL, uiGridExporterConstants.ALL );
+              },
+              shown: function() {
+                return this.grid.options.exporterMenuCsv && this.grid.options.exporterMenuAllData; 
               },
               order: 201
             },
@@ -15641,16 +15641,6 @@ module.filter('px', function() {
               order: 202
             },
             {
-              title: i18nService.getSafeText('gridMenu.exporterVisibleAsXlsx'),
-              action: function ($event) {
-                this.grid.api.exporter.xlsxExport( uiGridExporterConstants.VISIBLE, uiGridExporterConstants.VISIBLE );
-              },
-              shown: function() {
-                return this.grid.options.exporterMenuXlsx; 
-              },
-              order: 203
-            },
-            {
               title: i18nService.getSafeText('gridMenu.exporterSelectedAsCsv'),
               action: function ($event) {
                 this.grid.api.exporter.csvExport( uiGridExporterConstants.SELECTED, uiGridExporterConstants.VISIBLE );
@@ -15660,17 +15650,6 @@ module.filter('px', function() {
                        ( this.grid.api.selection && this.grid.api.selection.getSelectedRows().length > 0 ); 
               },
               order: 204
-            },
-            {
-              title: i18nService.getSafeText('gridMenu.exporterSelectedAsXlsx'),
-              action: function ($event) {
-                this.grid.api.exporter.xlsxExport( uiGridExporterConstants.SELECTED, uiGridExporterConstants.VISIBLE );
-              },
-              shown: function() {
-                return this.grid.options.exporterMenuXlsx &&
-                       ( this.grid.api.selection && this.grid.api.selection.getSelectedRows().length > 0 ); 
-              },
-              order: 205
             },
             {
               title: i18nService.getSafeText('gridMenu.exporterAllAsPdf'),
@@ -15747,16 +15726,22 @@ module.filter('px', function() {
          * uiGridExporterConstants.SELECTED
          */
         xlsxExport: function (grid, rowTypes, colTypes) {
-          var self = this;
-          this.loadAllDataIfNeeded(grid, rowTypes, colTypes).then(function() {
-            var exportColumnHeaders = self.getColumnHeaders(grid, colTypes);
-            var exportData = self.getData(grid, rowTypes, colTypes);
-            var xlsxContent = self.formatAsXlsx(exportColumnHeaders, exportData, grid.options.exporterXlsxFilename);
+          
+            window.location =  grid.exporter.$scope.openApp.isFragmentBased
+                ? myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/exportfragment?access_token=" + Account.getAccessToken()
+                : myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/export?format=xlsx&initial=true&access_token=" + Account.getAccessToken();
+
+           
+          // var self = this;
+          // this.loadAllDataIfNeeded(grid, rowTypes, colTypes).then(function() {
+          //   var exportColumnHeaders = self.getColumnHeaders(grid, colTypes);
+          //   var exportData = self.getData(grid, rowTypes, colTypes);
+          //   var xlsxContent = self.formatAsXlsx(exportColumnHeaders, exportData, grid.options.exporterXlsxFilename);
             
             
 
-            self.downloadFile (grid.options.exporterXlsxFilename, xlsxContent, grid.options.exporterOlderExcelCompatibility);
-          });
+          //   self.downloadFile (grid.options.exporterXlsxFilename, xlsxContent, grid.options.exporterOlderExcelCompatibility);
+          // });
         },
 
         /**
@@ -18095,8 +18080,8 @@ module.filter('px', function() {
    *
    *  @description Services for importer feature
    */
-  module.service('uiGridImporterService', ['$q', 'uiGridConstants', 'uiGridImporterConstants', 'gridUtil', '$compile', '$interval', 'i18nService', '$window',
-    function ($q, uiGridConstants, uiGridImporterConstants, gridUtil, $compile, $interval, i18nService, $window) {
+  module.service('uiGridImporterService', ['$q', 'upload', 'msgbox', 'pubsub', 'uiGridConstants', 'uiGridImporterConstants', 'gridUtil', '$compile', '$interval', 'i18nService', '$window',
+    function ($q, upload, msgbox, pubsub, uiGridConstants, uiGridImporterConstants, gridUtil, $compile, $interval, i18nService, $window) {
 
       var service = {
 
@@ -18132,7 +18117,7 @@ module.filter('px', function() {
                  * File object
                  */
                 importFile: function ( fileObject ) {
-                  service.importThisFile( grid, fileObject );
+                  service.importThisFile( grid, fileObject, target );
                 }
               }
             }
@@ -18397,7 +18382,7 @@ module.filter('px', function() {
           }
           
           var reader = new FileReader();
-          
+          var readFlag = false;
           switch ( fileObject.type ){
             case 'application/json':
               reader.onload = service.importJsonClosure( grid );
@@ -18405,16 +18390,72 @@ module.filter('px', function() {
             case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             case 'application/vnd.ms-excel':
               if(fileObject.name.split('.').pop().toLowerCase() === "csv") reader.onload = service.importCsvClosure( grid );
-              else reader.onload = service.importXlsxClosure( grid )
+              else { 
+                    reader.onload = service.showBoxClosure(grid, fileObject);
+              }
               break;
             default:
               reader.onload = service.importCsvClosure( grid );
               break;
           }
-          
           reader.readAsBinaryString( fileObject );
         },
         
+        showBoxClosure : function(grid, fileObject) {
+          return function(importFile) {
+            msgbox.show({
+                    acceptButtonText: "Import",
+                    title: "Import Data",
+                    content: "Are you sure you want to import this data into this directory? All existing data will be deleted and replaced with the content from the spreadsheet. If you need to append data, please cancel this operation and use the CSV importer found in the table options."
+                  }).then(() => {                     
+                    service.doUpload( grid, fileObject );
+                    
+                });
+            };
+
+
+        },
+
+
+        doUpload: function (grid, importFile) {
+            function doIt() {
+              var file = this;
+
+              //don't re-upload
+              if (this.complete) {
+                return;
+              }
+              //clear previous error
+              if (this.error) {
+                this.error = false;
+              }
+              //if this cancelled, clear
+              if (this.cancelled) {
+                this.cancelled = false;
+              }
+
+              var url = grid.importer.$scope.openApp.isFragmentBased ? myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/importfragment" : myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/importfragment";
+
+              this.upload = upload({
+                  url: url,
+                  data: {file: this},
+                  method: "POST"
+              }).progress(( evt ) => {
+                  file.progress = parseInt(100.0 * evt.loaded / evt.total);
+              }).success(( response, status, headers, config ) => {
+                  file.complete = true;
+                  pubsub.broadcast("Success", ["Import successful! Refreshing data... "]);
+                  setTimeout(function() {
+                      location.reload();
+                    }, 3000);
+              }).error(() => {
+                  file.error = true;
+                  pubsub.broadcast("Error", ["Error importing data!"]);
+              });
+            }
+
+            doIt.apply(importFile);
+         },
         
         /**
          * @ngdoc function
@@ -18428,7 +18469,7 @@ module.filter('px', function() {
          * a FileObject
          */
         importJsonClosure: function( grid ) {
-          return function( importFile ){
+          return function( importFile ) {
             var newObjects = [];
             var newObject;
             
