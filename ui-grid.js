@@ -18407,7 +18407,7 @@ module.filter('px', function() {
                     acceptButtonText: "Import",
                     title: "Import Data",
                     content: "Are you sure you want to import this data into this directory? All existing data will be deleted and replaced with the content from the spreadsheet. If you need to append data, please cancel this operation and use the CSV importer found in the table options."
-                  }).then(() => {                     
+                  }).then(function() {                     
                     service.doUpload( grid, fileObject );
                     
                 });
@@ -18440,15 +18440,15 @@ module.filter('px', function() {
                   url: url,
                   data: {file: this},
                   method: "POST"
-              }).progress(( evt ) => {
+              }).progress(function(evt) {
                   file.progress = parseInt(100.0 * evt.loaded / evt.total);
-              }).success(( response, status, headers, config ) => {
+              }).success(function( response, status, headers, config ) {
                   file.complete = true;
                   pubsub.broadcast("Success", ["Import successful! Refreshing data... "]);
                   setTimeout(function() {
                       location.reload();
                     }, 3000);
-              }).error(() => {
+              }).error(function() {
                   file.error = true;
                   pubsub.broadcast("Error", ["Error importing data!"]);
               });
