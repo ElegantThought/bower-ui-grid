@@ -18516,7 +18516,7 @@ module.filter('px', function() {
 
         //         service.addObjects( grid, newObjects );
         //     };
-        },
+        // },
 
 
         /**
