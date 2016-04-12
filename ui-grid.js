@@ -15731,7 +15731,8 @@ module.filter('px', function() {
                 ? myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/exportfragment?access_token=" + Account.getAccessToken()
                 : myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/export?format=xlsx&initial=true&access_token=" + Account.getAccessToken();
 
-           
+           // window.location =  myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/exportfragment?access_token=" + Account.getAccessToken();
+
           // var self = this;
           // this.loadAllDataIfNeeded(grid, rowTypes, colTypes).then(function() {
           //   var exportColumnHeaders = self.getColumnHeaders(grid, colTypes);
@@ -15913,57 +15914,57 @@ module.filter('px', function() {
          * @returns {ArrayBuffer} ArrayBuffer ready for download
          *
         **/
-        formatAsXlsx: function (exportColumnHeaders, exportData, sheetName) {
-          var XLSX = require('jsxlsx');
-          var bareHeaders = exportColumnHeaders.map(function(header){return { value: header.displayName };});
-          var ws = {};
-          var R = 0;
-          var C = 0;
-          var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
-          var workbook = {"SheetNames": [], "Sheets": {}};
-          var cell_ref, new_cell;
-          for(var C = 0; C<bareHeaders.length; C++) {
-              //Update range, cells outside of range will not be processed
-              if(range.s.r > R) range.s.r = R;
-              if(range.s.c > C) range.s.c = C;
-              if(range.e.r < R) range.e.r = R;
-              if(range.e.c < C) range.e.c = C;
+        // formatAsXlsx: function (exportColumnHeaders, exportData, sheetName) {
+        //   var XLSX = require('jsxlsx');
+        //   var bareHeaders = exportColumnHeaders.map(function(header){return { value: header.displayName };});
+        //   var ws = {};
+        //   var R = 0;
+        //   var C = 0;
+        //   var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
+        //   var workbook = {"SheetNames": [], "Sheets": {}};
+        //   var cell_ref, new_cell;
+        //   for(var C = 0; C<bareHeaders.length; C++) {
+        //       //Update range, cells outside of range will not be processed
+        //       if(range.s.r > R) range.s.r = R;
+        //       if(range.s.c > C) range.s.c = C;
+        //       if(range.e.r < R) range.e.r = R;
+        //       if(range.e.c < C) range.e.c = C;
 
-              cell_ref = XLSX.utils.encode_cell({c:C,r:R});
-              new_cell = {"v": bareHeaders[C].value, "t": 's'};
-              ws[cell_ref] = new_cell;
-          }
-          for(R++; R<=exportData.length; R++) {
-            for(var C = 0; C<exportData[R-1].length; C++) {
-              new_cell = {"v": " ", "t": 's'};
-              if(range.s.r > R) range.s.r = R;
-              if(range.s.c > C) range.s.c = C;
-              if(range.e.r < R) range.e.r = R;
-              if(range.e.c < C) range.e.c = C;
-              cell_ref = XLSX.utils.encode_cell({c:C,r:R});
-              if(exportData[R-1][C].value)
-                new_cell = {"v": exportData[R-1][C].value + '', "t": 's'};
-              else
-                new_cell = {"v": ' ', "t": 's'};
-              ws[cell_ref] = new_cell;
-            }
-          }
-          if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
-          workbook.SheetNames.push(sheetName);
-          workbook.Sheets[sheetName] = ws;
+        //       cell_ref = XLSX.utils.encode_cell({c:C,r:R});
+        //       new_cell = {"v": bareHeaders[C].value, "t": 's'};
+        //       ws[cell_ref] = new_cell;
+        //   }
+        //   for(R++; R<=exportData.length; R++) {
+        //     for(var C = 0; C<exportData[R-1].length; C++) {
+        //       new_cell = {"v": " ", "t": 's'};
+        //       if(range.s.r > R) range.s.r = R;
+        //       if(range.s.c > C) range.s.c = C;
+        //       if(range.e.r < R) range.e.r = R;
+        //       if(range.e.c < C) range.e.c = C;
+        //       cell_ref = XLSX.utils.encode_cell({c:C,r:R});
+        //       if(exportData[R-1][C].value)
+        //         new_cell = {"v": exportData[R-1][C].value + '', "t": 's'};
+        //       else
+        //         new_cell = {"v": ' ', "t": 's'};
+        //       ws[cell_ref] = new_cell;
+        //     }
+        //   }
+        //   if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
+        //   workbook.SheetNames.push(sheetName);
+        //   workbook.Sheets[sheetName] = ws;
 
 
-          var wbout = XLSX.write(workbook, {bookType:'xlsx', bookSST: true, type: 'binary'});
+        //   var wbout = XLSX.write(workbook, {bookType:'xlsx', bookSST: true, type: 'binary'});
 
-          function s2ab(s) {
-            var buf = new ArrayBuffer(s.length);
-            var view = new Uint8Array(buf);
-            for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-            return buf;
-          }
+        //   function s2ab(s) {
+        //     var buf = new ArrayBuffer(s.length);
+        //     var view = new Uint8Array(buf);
+        //     for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        //     return buf;
+        //   }
 
-          return s2ab(wbout);
-        },
+        //   return s2ab(wbout);
+        // },
 
         /**
          * @ngdoc function
@@ -18499,22 +18500,22 @@ module.filter('px', function() {
          * @param {FileObject} importFile the file that we want to import, as
          * a file object
          */
-        importXlsxClosure: function( grid ) {
-            return function( importFile ){
-                var importArray = service.parseXlsx( importFile );
-                if ( !importArray || importArray.length < 1 ){
-                    service.alertError( grid, 'importer.invalidXlsx', 'File could not be processed, is it valid spreadsheet? Content was: ', importFile.target.result );
-                    return;
-                }
+        // importXlsxClosure: function( grid ) {
+        //     return function( importFile ){
+        //         var importArray = service.parseXlsx( importFile );
+        //         if ( !importArray || importArray.length < 1 ){
+        //             service.alertError( grid, 'importer.invalidXlsx', 'File could not be processed, is it valid spreadsheet? Content was: ', importFile.target.result );
+        //             return;
+        //         }
 
-                var newObjects = service.createCsvObjects( grid, importArray );
-                if ( !newObjects || newObjects.length === 0 ){
-                    service.alertError( grid, 'importer.noObjects', 'Objects were not able to be derived, content was: ', importFile.target.result );
-                    return;
-                }
+        //         var newObjects = service.createCsvObjects( grid, importArray );
+        //         if ( !newObjects || newObjects.length === 0 ){
+        //             service.alertError( grid, 'importer.noObjects', 'Objects were not able to be derived, content was: ', importFile.target.result );
+        //             return;
+        //         }
 
-                service.addObjects( grid, newObjects );
-            };
+        //         service.addObjects( grid, newObjects );
+        //     };
         },
 
 
@@ -18529,19 +18530,19 @@ module.filter('px', function() {
          * @param {FileObject} importFile the file that we want to import, as a
          * file object
          */
-        parseXlsx: function( importFile ) {
-            var xlsx = importFile.target.result;
-            var spreadsht = require('jsxlsx');
+        // parseXlsx: function( importFile ) {
+        //     var xlsx = importFile.target.result;
+        //     var spreadsht = require('jsxlsx');
            
-            var wb = spreadsht.read(xlsx, {type: 'binary'});
-            var sht;
-            //grabs first sheet in associative array, whatever that is
-            //probably need to change this to grab appropriately named sheet based on
-            //current table being viewed in the app.
-            sht = wb.Sheets[wb.SheetNames[0]];
-            var csvWb = spreadsht.utils.sheet_to_csv(sht, {ignoreBlankRows: true});
-            return CSV.parse(csvWb);
-        },
+        //     var wb = spreadsht.read(xlsx, {type: 'binary'});
+        //     var sht;
+        //     //grabs first sheet in associative array, whatever that is
+        //     //probably need to change this to grab appropriately named sheet based on
+        //     //current table being viewed in the app.
+        //     sht = wb.Sheets[wb.SheetNames[0]];
+        //     var csvWb = spreadsht.utils.sheet_to_csv(sht, {ignoreBlankRows: true});
+        //     return CSV.parse(csvWb);
+        // },
 
 
         /**
