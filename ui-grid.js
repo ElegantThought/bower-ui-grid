@@ -15727,7 +15727,7 @@ module.filter('px', function() {
          */
         xlsxExport: function (grid, rowTypes, colTypes) {
           
-            window.location =  grid.exporter.$scope.openApp.isFragmentBased
+            window.location =  /*grid.exporter.$scope.openApp.isFragmentBased*/ true
                 ? myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/exportfragment?access_token=" + Account.getAccessToken()
                 : myClientTeamConfig.apiBase + "/apps/" +  grid.exporter.$scope.openApp.id + "/export?format=xlsx&initial=true&access_token=" + Account.getAccessToken();
 
