@@ -18435,7 +18435,7 @@ module.filter('px', function() {
                 this.cancelled = false;
               }
 
-              var url = grid.importer.$scope.openApp.isFragmentBased ? myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/importfragment" : myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/importfragment";
+              var url = /*grid.importer.$scope.openApp.isFragmentBased*/ true ? myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/import" : myClientTeamConfig.apiBase + "/apps/" + grid.importer.$scope.openApp.id + "/importfragment";
 
               this.upload = upload({
                   url: url,
